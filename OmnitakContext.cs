@@ -1,6 +1,7 @@
 ﻿namespace OmnitakSupportHub
 {
     using Microsoft.EntityFrameworkCore;
+    using System.Security.Claims;
 
     public class OmnitakContext : DbContext
     {
@@ -20,7 +21,10 @@
         // }
     }
 
-    public class User { public int UserID { get; set; } public string FullName { get; set; } }
+    public class User { public int UserID { get; set; } public string FullName { get; set; }
+        public ClaimsIdentity? Username { get; internal set; }
+        public ClaimsIdentity? Role { get; internal set; }
+    }
     public class Ticket { public int TicketID { get; set; } public string Title { get; set; } }
     public class Role { public int RoleID { get; set; } public string RoleName { get; set; } }
     public class SupportTeam
