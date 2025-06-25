@@ -7,17 +7,31 @@ namespace OmnitakSupportHub.Services
 {
     public class InMemoryUserService : IUserServices
     {
-        private static readonly List<User> _users = new()
+        // Store credentials separately since User model might not have Password
+        private static readonly Dictionary<string, string> _passwords = new Dictionary<string, string>
         {
-            new User { Username = "alice", Password = "P@ssword1", Role = "Admin" },
-            new User { Username = "bob",   Password = "P@ssword2", Role = "User"  }
+            { "alice", "P@ssword1" },
+            { "bob", "P@ssword2" }
         };
 
-        public User? ValidateUser(string username, string password)
+        private static readonly List<User> _users = new List<User>
         {
-            return _users.SingleOrDefault(u =>
-                u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
-                && u.Password == password);
+            new User { Username = "alice", Role = "Admin" },
+            new User { Username = "bob", Role = "User" }
+        };
+
+        public User ValidateUser(string username, string password)
+        {
+            // Check if password matches
+            if (_passwords.ContainsKey(username.ToLower()) &&
+                _passwords[username.ToLower()] == password)
+            {
+                // Return the user if password is correct
+                return _users.FirstOrDefault(u =>
+                    string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return null;
         }
     }
-}
+}}
