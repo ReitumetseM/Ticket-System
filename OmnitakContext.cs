@@ -1,4 +1,4 @@
-﻿namespace OmnitakITSupportMVC
+﻿namespace OmnitakSupportHub
 {
     using Microsoft.EntityFrameworkCore;
 
@@ -23,5 +23,8 @@
     public class User { public int UserID { get; set; } public string FullName { get; set; } }
     public class Ticket { public int TicketID { get; set; } public string Title { get; set; } }
     public class Role { public int RoleID { get; set; } public string RoleName { get; set; } }
-    public class SupportTeam { public int TeamID { get; set; } public string TeamName { get; set; } }
+    public class SupportTeam
+    {
+        public int TeamID { get; set; }
+    }
 }
