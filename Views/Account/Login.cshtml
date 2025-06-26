@@ -1,26 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-	ViewData["Title"] = "Login";
+﻿@{
+    ViewData["Title"] = "Login";
 }
-<h2>@ViewData["Title"]</h2>
-<form asp-action="Login" method="post">
-	<div>
-		<label>Username</label>
-		<input name="username" />
-	</div>
-	<div>
-		<label>Password</label>
-		<input name="password" type="password" />
-	</div>
-	<div>
-		<label>
-			<input name="rememberMe" type="checkbox" />
-			Remember me
-		</label>
-	</div>
-	<button type="submit">Log in</button>
-	<div asp-validation-summary="All"></div>
-</form>
-}
+
+<div class="login-container">
+    <div class="logo">O</div>
+    <h1 class="title">Omnitak Support Hub</h1>
+    <p class="subtitle">IT Support System</p>
+
+    <form asp-action="Login" method="post">
+        <div class="form-group">
+            <input name="username" type="" placeholder="Enter your name" required />
+        </div>
+
+        <div class="form-group">
+            <input name="password" type="" placeholder="Enter your password" required />
+        </div>
+
+        <div class="forgot-password">
+            <a href="/forgot-password">Forgot Password?</a>
+        </div>
+
+        <div class="checkbox-group">
+            <input name="rememberMe" type="checkbox" id="rememberMe" />
+            <label for="rememberMe">Remember me</label>
+        </div>
+
+        <button type="submit" class="login-button">Sign In</button>
+
+        <div class="signup-link">
+            Don't have an account? <a href="/register">Create one here</a>
+        </div>
+
+        <div asp-validation-summary="All" class="validation-summary"></div>
+    </form>
+</div>
+

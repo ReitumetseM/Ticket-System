@@ -1,37 +1,25 @@
 ﻿using System;
+using OmnitakSupportHub.Models;
+using OmnitakSupportHub.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using OmnitakSupportHub.Models;
 
-namespace OmnitakSupportHub.Services
+namespace OmnitakSupportHub.Service
 {
-    public class InMemoryUserService : IUserServices
+    public class InMemoryUserService : IUserServices // changed from IUserService to IUserServices
     {
-        // Store credentials separately since User model might not have Password
-        private static readonly Dictionary<string, string> _passwords = new Dictionary<string, string>
+        private static readonly List<User> _users = new()
         {
-            { "alice", "P@ssword1" },
-            { "bob", "P@ssword2" }
+            new() { Username = "alice", Password = "P@ssword1", Role = "Admin" },
+            new() { Username = "bob",   Password = "P@ssword2", Role = "User"  }
         };
 
-        private static readonly List<User> _users = new List<User>
+        public User? ValidateUser(string username, string password) // renamed from Validate
         {
-            new User { Username = "alice", Role = "Admin" },
-            new User { Username = "bob", Role = "User" }
-        };
-
-        public User ValidateUser(string username, string password)
-        {
-            // Check if password matches
-            if (_passwords.ContainsKey(username.ToLower()) &&
-                _passwords[username.ToLower()] == password)
-            {
-                // Return the user if password is correct
-                return _users.FirstOrDefault(u =>
-                    string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase));
-            }
-
-            return null;
+            return _users.SingleOrDefault(u =>
+                u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
+                && u.Password == password);
         }
     }
-}}
+}
