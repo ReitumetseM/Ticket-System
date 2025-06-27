@@ -6,7 +6,6 @@ namespace OmnitakSupportHub.Models.ViewModels
     {
         [Display(Name = "Total Users")]
         public int TotalUsers { get; set; }
-
         [Display(Name = "Pending Approvals")]
         public int PendingUsers { get; set; }
 

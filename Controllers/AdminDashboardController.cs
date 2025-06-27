@@ -8,7 +8,6 @@ namespace OmnitakSupportHub.Controllers
     public class AdminDashboardController : Controller
     {
         private readonly IAuthService _authService;
-
         public AdminDashboardController(IAuthService authService)
         {
             _authService = authService;

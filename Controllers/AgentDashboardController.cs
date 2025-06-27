@@ -8,7 +8,7 @@ namespace OmnitakSupportHub.Controllers
     {
         public IActionResult Index()
         {
-            // Support Agent dashboard - focused on ticket management
+            // Support Agent dashboard - focused on ticket manager
             return View();
         }
     }
