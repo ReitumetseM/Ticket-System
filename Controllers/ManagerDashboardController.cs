@@ -19,7 +19,6 @@ namespace OmnitakSupportHub.Controllers
             // Support Managers can also approve users
             var pendingUsers = await _authService.GetPendingUsersAsync();
             var availableRoles = await _authService.GetAvailableRolesAsync();
-
             ViewBag.PendingUsers = pendingUsers;
             ViewBag.AvailableRoles = availableRoles;
 

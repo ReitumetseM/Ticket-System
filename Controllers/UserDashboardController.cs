@@ -8,7 +8,7 @@ namespace OmnitakSupportHub.Controllers
     {
         public IActionResult Index()
         {
-            // End User dashboard - focused on viewing own tickets and creating new ones
+            // End User dashboard, focused on viewing own tickets and creating new ones
             return View();
         }
     }
