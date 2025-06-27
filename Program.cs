@@ -8,18 +8,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Register Entity Framework DbContext
 builder.Services.AddDbContext<OmnitakContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register your custom user service (in-memory or database-backed)
-builder.Services.AddScoped<IAuthService, InMemoryUserService>();
+// Register Authentication Service
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-// ✅ Add cookie authentication
+// Add Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Account/Login";           // Redirect to this on [Authorize]
-        options.AccessDeniedPath = "/Account/AccessDenied"; // Optional
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
     });
 
 var app = builder.Build();
@@ -28,19 +32,29 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // ✅ Required for serving CSS/JS
-
 app.UseRouting();
 
-app.UseAuthentication();  // ✅ Add authentication middleware
-app.UseAuthorization();   // Already present
+// Add Authentication & Authorization middleware
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}"); // Default route to login
+    pattern: "{controller=Home}/{action=Index}/{id?}")
+    .WithStaticAssets();
+
+// Redirect root URL to the login page
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/Account/Login");
+    return Task.CompletedTask;
+});
 
 app.Run();
