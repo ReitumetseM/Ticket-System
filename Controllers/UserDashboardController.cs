@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace OmnitakSupportHub.Controllers
 {
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "End User")]
     public class UserDashboardController : Controller
     {
         public IActionResult Index()
         {
+            // End User dashboard - focused on viewing own tickets and creating new ones
             return View();
         }
     }
