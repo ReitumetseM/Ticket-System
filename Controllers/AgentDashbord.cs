@@ -1,6 +1,15 @@
-﻿namespace OmnitakSupportHub.Controllers
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace OmnitakSupportHub.Controllers
 {
-    public class AgentDashbord
+    [Authorize(Roles = "Support Agent")]
+    public class AgentDashboardController : Controller
     {
+        public IActionResult Index()
+        {
+            // Support Agent dashboard - focused on ticket management
+            return View();
+        }
     }
 }
