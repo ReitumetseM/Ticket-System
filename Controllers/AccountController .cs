@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OmnitakSupportHub.Models;
+using OmnitakSupportHub.Models.ViewModels;
 using OmnitakSupportHub.Services;
 
 namespace OmnitakSupportHub.Controllers
 {
     public class AccountController : Controller
     {
-        }private readonly IAuthService _authService;
+        private readonly IAuthService _authService;
 
         public AccountController(IAuthService authService)
         {
@@ -142,3 +143,4 @@ namespace OmnitakSupportHub.Controllers
             return RedirectToAction("Login");
         }
     }
+}
