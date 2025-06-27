@@ -4,19 +4,19 @@ using OmnitakSupportHub.Services;
 
 namespace OmnitakSupportHub.Controllers
 {
-    [Authorize(Roles = "Administrator")]
-    public class AdminDashboardController : Controller
+    [Authorize(Roles = "Support Manager")]
+    public class ManagerDashboardController : Controller
     {
         private readonly IAuthService _authService;
 
-        public AdminDashboardController(IAuthService authService)
+        public ManagerDashboardController(IAuthService authService)
         {
             _authService = authService;
         }
 
         public async Task<IActionResult> Index()
         {
-            // Get pending users for approval
+            // Support Managers can also approve users
             var pendingUsers = await _authService.GetPendingUsersAsync();
             var availableRoles = await _authService.GetAvailableRolesAsync();
 

@@ -1,7 +1,6 @@
-﻿using OmnitakSupportHub.Models;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using OmnitakSupportHub.Models;
 
 namespace OmnitakSupportHub.Services
 {
@@ -24,5 +23,3 @@ namespace OmnitakSupportHub.Services
         bool VerifyPassword(string password, string hash);
     }
 }
-
-

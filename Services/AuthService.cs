@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using OmnitakSupportHub.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
+using OmnitakSupportHub.Models;
 using System.Security.Cryptography;
 using System.Text;
 

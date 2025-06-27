@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Net.Sockets;
 
 namespace OmnitakSupportHub.Models
 {
@@ -16,7 +15,7 @@ namespace OmnitakSupportHub.Models
 
         [Required]
         [StringLength(128)]
-        public string PasswordHash { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;    
 
         [StringLength(20)]
         public string HashAlgorithm { get; set; } = "SHA256";
