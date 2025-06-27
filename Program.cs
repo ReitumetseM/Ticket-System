@@ -12,7 +12,7 @@ builder.Services.AddDbContext<OmnitakContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register your custom user service (in-memory or database-backed)
-builder.Services.AddScoped<IUserServices, InMemoryUserService>();
+builder.Services.AddScoped<IAuthService, InMemoryUserService>();
 
 // ✅ Add cookie authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

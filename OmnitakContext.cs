@@ -6,7 +6,7 @@ using OmnitakSupportHub.Models;
 
 namespace OmnitakSupportHub.Services
 {
-    public class InMemoryUserService : IUserServices
+    public class InMemoryUserService : IAuthService
     {
         // Store credentials separately if User model doesn't contain password
         private static readonly Dictionary<string, string> _passwords = new Dictionary<string, string>
