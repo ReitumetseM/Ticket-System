@@ -1,122 +1,120 @@
-OmnitakSupportHub
-OmnitakSupportHub is a modern IT support ticketing and knowledge base web application built with ASP.NET Core (.NET 9), 
-Entity Framework Core, and SQL Server. It supports role-based authentication, ticket management, team collaboration, and
-an extensible knowledge base, designed for enterprise IT support environments.
----
-Table of Contents
-ï	#features
-ï	#project-structure
-ï	#technology-stack
-ï	#getting-started
-ï	#prerequisites
-ï	#configuration
-ï	#database-setup
-ï	#running-the-application
-ï	#authentication--authorization
-ï	#key-components
-ï	#troubleshooting
-ï	#contributing
-ï	#license
----
-Features
-ï	User Registration & Login: Secure registration and login with email and password.
-ï	Role-Based Access: Administrator, Support Manager, Support Agent, and User roles with granular permissions.
-ï	Ticket Management: Create, assign, and track support tickets.
-ï	Team Management: Organize users into support teams.
-ï	Knowledge Base: Create and manage articles for self-service support.
-ï	Audit Logging: Track key actions for security and compliance.
-ï	Responsive UI: Built with Bootstrap for modern, mobile-friendly design.
----
-Project Structure
+ÔªøOmnitakSupportHub
+OmnitakSupportHub is a robust IT support ticketing and knowledge base application built with ASP.NET Core (.NET 9), Entity Framework Core, and SQL Server. Designed for enterprise environments, it empowers support teams with efficient ticketing workflows, role-based access control, and an extensible knowledge base.
+
+üìã Features
+Secure Authentication: Email/password login secured with cookie-based authentication.
+
+Role-Based Access Control: Fine-grained permissions for Admins, Support Managers, Agents, and Users.
+
+Ticket Management: Create, assign, escalate, and track support tickets with full history.
+
+Team Collaboration: Assign users to support teams and streamline response management.
+
+Knowledge Base: Author and publish support articles for self-service.
+
+Audit Logging: Record key actions for compliance and traceability.
+
+Responsive UI: Built with Bootstrap 5 for a modern, mobile-friendly interface.
+
+üß± Project Structure
+plaintext
 OmnitakSupportHub/
-?
-??? Controllers/                # MVC Controllers (Account, Home, AdminDashboard, AgentDashboard, etc.)
-??? Models/                     # Entity and ViewModel classes (User, Role, Ticket, etc.)
-??? Services/                   # Business logic and data access (AuthService, IAuthService)
-??? Views/
-?   ??? Shared/                 # Shared layout and partials (_Layout.cshtml)
-?   ??? Account/                # Login, Register views
-?   ??? AdminDashboard/         # Admin dashboard view
-?   ??? ...                     # Other feature views
-??? wwwroot/                    # Static files (CSS, JS, images)
-??? appsettings.json            # Application configuration
-??? Program.cs                  # Application startup and configuration
-??? README.md                   # Project documentation
----
-Technology Stack
-ï	.NET 9 (ASP.NET Core MVC)
-ï	Entity Framework Core (SQL Server)
-ï	Bootstrap 5 (UI)
-ï	Microsoft Identity / Cookie Authentication
-ï	C# 13
----
-Getting Started
+‚îú‚îÄ‚îÄ Controllers/           // MVC controllers (Account, Home, AdminDashboard, etc.)
+‚îú‚îÄ‚îÄ Models/                // Core entities and ViewModels (User, Role, Ticket, etc.)
+‚îú‚îÄ‚îÄ Services/              // Business logic (e.g., AuthService)
+‚îú‚îÄ‚îÄ Views/                 // Razor Views
+‚îÇ   ‚îú‚îÄ‚îÄ Shared/            // Layouts and partials (_Layout.cshtml)
+‚îÇ   ‚îú‚îÄ‚îÄ Account/           // Login, registration, etc.
+‚îÇ   ‚îú‚îÄ‚îÄ AdminDashboard/    // Admin views
+‚îú‚îÄ‚îÄ wwwroot/               // Static assets (CSS, JS, images)
+‚îú‚îÄ‚îÄ appsettings.json       // Configuration settings
+‚îú‚îÄ‚îÄ Program.cs             // Application entry point
+‚îú‚îÄ‚îÄ README.md              // Project documentation
+‚öôÔ∏è Technology Stack
+.NET 9 / ASP.NET Core MVC
+
+Entity Framework Core (SQL Server)
+
+C# 13
+
+Bootstrap 5
+
+Microsoft Identity (Cookie Authentication)
+
+üöÄ Getting Started
 Prerequisites
-ï	.NET 9 SDK
-ï	SQL Server (or LocalDB)
-ï	Visual Studio 2022 (recommended)
+.NET 9 SDK
+
+SQL Server or LocalDB
+
+Visual Studio 2022+ (recommended)
+
 Configuration
-1.	Clone the repository:
-   git clone https://github.com/your-org/OmnitakSupportHub.git
-   cd OmnitakSupportHub
-2.	Configure the database connection:
+Clone the repository:
+
+bash
+git clone https://github.com/your-org/OmnitakSupportHub.git
+cd OmnitakSupportHub
 Edit appsettings.json:
-   "ConnectionStrings": {
-     "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=OmnitakITSupportDB;Trusted_Connection=True;MultipleActiveResultSets=true"
-   }
-ï	Change Server and Database as needed for your environment.
+
+json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=OmnitakITSupportDB;Trusted_Connection=True;MultipleActiveResultSets=true"
+}
 Database Setup
-1.	Apply Migrations and Create Database:
-Open the terminal in the project directory and run:
-   dotnet ef database update
-This will create the database and apply all migrations.
-Running the Application
-1.	Build and Run:
-   dotnet run
-2.	Access the App:
-Open your browser and navigate to https://localhost:7080 (or the port shown in your console).
----
-Authentication & Authorization
-ï	Cookie Authentication is configured in Program.cs.
-ï	Login/Logout handled by AccountController.
-ï	Role-based redirects: After login, users are redirected to dashboards based on their role.
-ï	Logout: Must be triggered via a POST form (not a link) due to [HttpPost] on the action.
-Example logout form:
-  <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-      <button type="submit" class="btn btn-link">Logout</button>
-  </form>
----
-Key Components
+Apply migrations and create the database:
+
+bash
+dotnet ef database update
+Run the Application
+bash
+dotnet run
+Then navigate to: https://localhost:7080
+
+üîê Authentication & Authorization
+Configured via Program.cs using cookie authentication
+
+Role-based redirection upon login
+
+Logout requires POST form submission (not links) due to [HttpPost] constraint:
+
+html
+<form asp-controller="Account" asp-action="Logout" method="post">
+    <button type="submit" class="btn btn-link">Logout</button>
+</form>
+üß© Key Components
 Controllers
-ï	AccountController: Handles registration, login, and logout.
-ï	AdminDashboardController: Admin dashboard and management actions.
-ï	AgentDashboardController: Support agent dashboard.
-ï	HomeController: Public pages (Home, Privacy, etc.).
+AccountController ‚Äì login, logout, registration
+
+AdminDashboardController ‚Äì admin interface
+
+AgentDashboardController ‚Äì agent workflow
+
+HomeController ‚Äì public pages
+
 Services
-ï	AuthService: Handles authentication, registration, user approval, and audit logging.
+AuthService ‚Äì registration, login, audit logging
+
 Models
-ï	User, Role, Ticket, SupportTeam, AuditLog, KnowledgeBase, Feedback: Core entities for the support system.
-Views
-ï	Account/Login.cshtml: Login page.
-ï	Account/Register.cshtml: Registration page.
-ï	AdminDashboard/Index.cshtml: Admin dashboard.
-ï	Shared/_Layout.cshtml: Main layout for all pages.
----
-Troubleshooting
-ï	Login/Logout Issues: Ensure logout is triggered via a POST form. If you see a 404 or 405 error, check that the form is used instead of a link.
-ï	Database Connection Errors: Verify your connection string and that SQL Server is running.
-ï	Page Not Found (404): Ensure the controller and view names match exactly (case-sensitive on some systems).
-ï	Authentication Redirects: Confirm UseAuthentication() and UseAuthorization() are called in Program.cs.
----
-Contributing
-1.	Fork the repository.
-2.	Create a feature branch (git checkout -b feature/your-feature).
-3.	Commit your changes.
-4.	Push to your branch.
-5.	Open a pull request.
----
-License
+User, Role, Ticket, SupportTeam, AuditLog, KnowledgeBase, Feedback
+
+üõ†Ô∏è Troubleshooting
+Login issues: Ensure logout uses a POST form.
+
+DB connection errors: Check connection string and SQL Server availability.
+
+404s: Confirm controller/view naming conventions (case-sensitive on some platforms).
+
+Authentication issues: Ensure UseAuthentication() and UseAuthorization() are correctly called in Program.cs.
+
+ü§ù Contributing
+Fork the repository.
+
+Create a branch: git checkout -b feature/my-feature
+
+Commit your changes.
+
+Push and open a Pull Request.
+
+üìÑ License
 This project is licensed under the MIT License.
----
-For any questions or issues, please open an issue on the repository or contact the maintainer.
----
