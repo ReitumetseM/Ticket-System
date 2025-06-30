@@ -6,6 +6,7 @@ namespace OmnitakSupportHub.Models
     {
         [Key]
         public int LogID { get; set; }
+
         [Required]
         [StringLength(50)]
         public string Action { get; set; } = string.Empty;
