@@ -75,3 +75,13 @@ Running the Application
    dotnet run
 2.	Access the App:
 Open your browser and navigate to https://localhost:7080 (or the port shown in your console).
+---
+Authentication & Authorization
+•	Cookie Authentication is configured in Program.cs.
+•	Login/Logout handled by AccountController.
+•	Role-based redirects: After login, users are redirected to dashboards based on their role.
+•	Logout: Must be triggered via a POST form (not a link) due to [HttpPost] on the action.
+Example logout form:
+  <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+      <button type="submit" class="btn btn-link">Logout</button>
+  </form>
