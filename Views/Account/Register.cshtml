@@ -1,46 +1,239 @@
 ﻿@model OmnitakSupportHub.Models.RegisterModel
-
 @{
     ViewData["Title"] = "Register";
 }
 
-<h2>@ViewData["Title"]</h2>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f0f2f5 0%, #e0e4e8 100%);
+        overflow: auto;
+    }
 
-<form asp-action="Register" method="post" class="mt-3">
-    <div asp-validation-summary="All" class="text-danger"></div>
+    .container {
+        width: 100%;
+        max-width: 500px;
+        padding: 2rem;
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 1s ease-in;
+    }
 
-    <div class="form-group">
-        <label asp-for="FullName"></label>
-        <input asp-for="FullName" class="form-control" />
-        <span asp-validation-for="FullName" class="text-danger"></span>
+    .header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+        .header h2 {
+            color: #2e7d32;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .header .logo {
+            width: 70px;
+            height: 70px;
+            background-color: #2e7d32;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            color: white;
+            font-weight: bold;
+        }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+
+        .form-group label {
+            display: block;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .form-control:focus {
+            border-color: #2e7d32;
+            outline: none;
+            transform: scale(1.02);
+        }
+
+    .text-danger {
+        color: #e74c3c;
+        font-size: 1rem;
+        margin-top: 5px;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .validation-summary-errors {
+        background-color: #f8d7da;
+        border: 2px solid #f5c6cb;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        font-size: 1rem;
+    }
+
+    button {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(90deg, #2e7d32 0%, #388e3c 100%);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: transform 0.3s ease, background 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(90deg, #1b5e20 0%, #2e7d32 100%);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            top: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        button:hover::after {
+            width: 100%;
+        }
+
+    .footer-text {
+        text-align: center;
+        font-size: 1rem;
+        margin-top: 1.5rem;
+        color: #7f8c8d;
+    }
+
+        .footer-text a {
+            color: #1e88e5;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+            .footer-text a:hover {
+                color: #1565c0;
+                text-decoration: underline;
+            }
+
+     (max-width: 600px) {
+        .container
+
+    {
+        padding: 1.5rem;
+        width: 90%;
+    }
+
+    .header h2 {
+        font-size: 2rem;
+    }
+
+    .header .logo {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .form-group label {
+        font-size: 1rem;
+    }
+
+    .form-control {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+
+    button {
+        font-size: 1rem;
+    }
+
+    }
+</style>
+
+<div class="container">
+    <div class="header">
+        <div class="logo">O</div>
+        <h2>@ViewData["Title"]</h2>
     </div>
+    <form asp-action="Register" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="validation-summary-errors"></div>
 
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="FullName">Full Name</label>
+            <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="Password">Password</label>
+            <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="Department"></label>
-        <input asp-for="Department" class="form-control" />
-        <span asp-validation-for="Department" class="text-danger"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="ConfirmPassword">Confirm Password</label>
+            <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Confirm your password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
+        <div class="form-group">
+            <label asp-for="Department">Department</label>
+            <input asp-for="Department" class="form-control" placeholder="Enter your department" />
+            <span asp-validation-for="Department" class="text-danger"></span>
+        </div>
+
+        <button type="submit">Register</button>
+        <div class="footer-text">
+            Already have an account? <a asp-action="Login" asp-controller="Account">Login here</a>.
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
