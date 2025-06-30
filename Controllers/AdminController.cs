@@ -12,6 +12,7 @@ namespace OmnitakSupportHub.Controllers
     {
         private readonly IAuthService _authService;
         private readonly OmnitakContext _context;
+
         public AdminController(IAuthService authService, OmnitakContext context)
         {
             _authService = authService;
