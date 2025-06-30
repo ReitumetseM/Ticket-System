@@ -12,6 +12,7 @@ namespace OmnitakSupportHub.Controllers
     public class AccountController : Controller
     {
         private readonly IAuthService _authService;
+
         public AccountController(IAuthService authService)
         {
             _authService = authService;
@@ -20,7 +21,7 @@ namespace OmnitakSupportHub.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            return View(new LoginViewModel());
         }
 
         [HttpPost]
