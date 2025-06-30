@@ -85,3 +85,38 @@ Example logout form:
   <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
       <button type="submit" class="btn btn-link">Logout</button>
   </form>
+---
+Key Components
+Controllers
+•	AccountController: Handles registration, login, and logout.
+•	AdminDashboardController: Admin dashboard and management actions.
+•	AgentDashboardController: Support agent dashboard.
+•	HomeController: Public pages (Home, Privacy, etc.).
+Services
+•	AuthService: Handles authentication, registration, user approval, and audit logging.
+Models
+•	User, Role, Ticket, SupportTeam, AuditLog, KnowledgeBase, Feedback: Core entities for the support system.
+Views
+•	Account/Login.cshtml: Login page.
+•	Account/Register.cshtml: Registration page.
+•	AdminDashboard/Index.cshtml: Admin dashboard.
+•	Shared/_Layout.cshtml: Main layout for all pages.
+---
+Troubleshooting
+•	Login/Logout Issues: Ensure logout is triggered via a POST form. If you see a 404 or 405 error, check that the form is used instead of a link.
+•	Database Connection Errors: Verify your connection string and that SQL Server is running.
+•	Page Not Found (404): Ensure the controller and view names match exactly (case-sensitive on some systems).
+•	Authentication Redirects: Confirm UseAuthentication() and UseAuthorization() are called in Program.cs.
+---
+Contributing
+1.	Fork the repository.
+2.	Create a feature branch (git checkout -b feature/your-feature).
+3.	Commit your changes.
+4.	Push to your branch.
+5.	Open a pull request.
+---
+License
+This project is licensed under the MIT License.
+---
+For any questions or issues, please open an issue on the repository or contact the maintainer.
+---
