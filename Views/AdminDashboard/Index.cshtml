@@ -1,13 +1,402 @@
-﻿@{
+﻿@model OmnitakSupportHub.Models.ViewModels.AdminDashboardViewModel
+@{
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<h2>Welcome to the Admin Dashboard</h2>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f0f2f5 0%, #e0e4e8 100%);
+        display: flex;
+        overflow: auto;
+    }
 
-<p>You are logged in as an Admin.</p>
+    .dashboard-container {
+        display: flex;
+        width: 100%;
+        max-width: 1400px;
+        margin: 20px auto;
+    }
 
-<form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-    <button type="submit" class="btn btn-link" style="padding:0; border:none; background:none;">
-        Logout
-    </button>
-</form>
+    .sidebar {
+        width: 250px;
+        background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+        color: white;
+        padding: 20px;
+        min-height: calc(100vh - 40px);
+        position: sticky;
+        top: 20px;
+    }
+
+        .sidebar h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .sidebar .nav-link {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+            .sidebar .nav-link:hover {
+                background: rgba(255, 255, 255, 0.3);
+                color: #e0e0e0;
+            }
+
+    .main-content {
+        flex: 1;
+        padding: 25px;
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        margin-left: 20px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+        .header h2 {
+            color: #2e7d32;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            color: #2e7d32;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 5px 0 0;
+        }
+
+        .header .logout-btn {
+            padding: 0;
+            border: none;
+            background: none;
+            color: #2e7d32;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+            .header .logout-btn:hover {
+                color: #1b5e20;
+            }
+
+    .alert {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 1rem;
+        border-left: 5px solid;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-left-color: #28a745;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-left-color: #dc3545;
+        color: #721c24;
+    }
+
+    .alert-info {
+        background-color: #cce5ff;
+        border-left-color: #007bff;
+        color: #004085;
+    }
+
+    .section-header {
+        background: linear-gradient(90deg, #2e7d32, #388e3c);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+        margin-top: 25px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #2e7d32;
+        color: white;
+        font-weight: 600;
+    }
+
+    td {
+        vertical-align: middle;
+        background: #fafafa;
+    }
+
+    .form-select, .btn {
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+        }
+
+    .toggle-status-btn {
+        margin-left: 5px;
+    }
+    (max-width: 900px) {
+        .dashboard-container
+
+    {
+        flex-direction: column;
+        margin: 10px;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+        margin-bottom: 20px;
+        position: static;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    table {
+        font-size: 0.9rem;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+
+    .header h2 {
+        font-size: 1.8rem;
+    }
+
+    .header p {
+        font-size: 1rem;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="sidebar">
+        <h3>Admin Menu</h3>
+        <a href="#" class="nav-link">Dashboard</a>
+        <a href="#" class="nav-link">User Management</a>
+        <a href="#" class="nav-link">Reports</a>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline; margin-top: 20px;">
+            <button type="submit" class="nav-link logout-btn">Logout</button>
+        </form>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <h2>Welcome to the Admin Dashboard</h2>
+            <p>You are logged in as an Admin.</p>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        }
+
+        @if (Model.PendingUsers != null && Model.PendingUsers.Any())
+        {
+            <div class="section-header">Pending User Approvals</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                        <th>Manage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.PendingUsers)
+                    {
+                        <tr>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td>@user.Department</td>
+                            <td>
+                                <form asp-action="ApproveUser" method="post" class="d-inline">
+                                    <input type="hidden" name="userId" value="@user.UserID" />
+                                    <select name="roleId" class="form-select form-select-sm d-inline w-auto">
+                                        @foreach (var role in Model.AvailableRoles)
+                                        {
+                                            <option value="@role.RoleID">@role.RoleName</option>
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form asp-action="RejectUser" method="post" class="d-inline">
+                                    <input type="hidden" name="userId" value="@user.UserID" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            </td>
+                            <td>
+                                <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-sm btn-warning">Edit</a>
+                                <button type="button"
+                                        class="btn btn-sm @(user.IsActive ? "btn-danger" : "btn-success") toggle-status-btn"
+                                        data-user-id="@user.UserID"
+                                        data-active="@user.IsActive">
+                                    @(user.IsActive ? "Deactivate" : "Activate")
+                                </button>
+                                <form asp-action="ToggleUserStatus" asp-route-id="@user.UserID" method="post" style="display:inline;" class="toggle-status-fallback">
+                                    <button type="submit" class="d-none"></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info mt-4">No users pending approval.</div>
+        }
+
+        @if (Model.ActiveUsers != null && Model.ActiveUsers.Any())
+        {
+            <div class="section-header">Active Users</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.ActiveUsers)
+                    {
+                        <tr>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td>@user.Department</td>
+                            <td>@user.Role?.RoleName</td>
+                            <td>
+                                <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-sm btn-warning">Edit</a>
+                                <form asp-action="ToggleUserStatus" asp-route-id="@user.UserID" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-info mt-4">No active users found.</div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.toggle-status-btn').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    var userId = this.getAttribute('data-user-id');
+                    var button = this;
+                    fetch('@Url.Action("ToggleUserStatus", "AdminDashboard")/' + userId, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) return response.text();
+                        throw new Error('Failed to toggle status');
+                    })
+                    .then(data => {
+                        // Toggle button appearance and text
+                        var isActive = button.getAttribute('data-active') === 'True';
+                        button.setAttribute('data-active', (!isActive).toString());
+                        button.classList.toggle('btn-danger');
+                        button.classList.toggle('btn-success');
+                        button.textContent = isActive ? 'Activate' : 'Deactivate';
+                    })
+                    .catch(error => {
+                        // If AJAX fails, submit the fallback form
+                        var fallbackForm = button.parentElement.querySelector('.toggle-status-fallback');
+                        if (fallbackForm) fallbackForm.submit();
+                    });
+                });
+            });
+        });
+    </script>
+}
