@@ -21,5 +21,14 @@ namespace OmnitakSupportHub.Services
             string? ipAddress = null);
         string HashPassword(string password);
         bool VerifyPassword(string password, string hash);
+
+        Task<bool> ToggleUserActiveAsync(int userId, int performedById);
+
+        Task<User?> GetUserByIdAsync(int userId);
+
+        Task<bool> UpdateUserAsync(int userId, string fullName, string? department, 
+                    int roleId, int? teamId, int modifiedById);
+
+        Task<List<User>> GetActiveUsersAsync();
     }
 }
