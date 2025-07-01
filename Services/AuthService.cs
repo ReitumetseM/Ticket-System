@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using OmnitakSupportHub.Models;
@@ -148,9 +149,63 @@ namespace OmnitakSupportHub.Services
                 .ToListAsync();
         }
 
+        public async Task<bool> ToggleUserActiveAsync(int userId, int performedById)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return false;
+
+            user.IsActive = !user.IsActive;
+            await _context.SaveChangesAsync();
+
+            await CreateAuditLogAsync(
+                userId: performedById,
+                action: user.IsActive ? "REACTIVATE_USER" : "DEACTIVATE_USER",
+                targetType: "User",
+                targetId: userId,
+                details: user.IsActive ? "User account reactivated." : "User account deactivated."
+            );
+
+            return true;
+        }
+
+        public async Task<bool> UpdateUserAsync(int userId, string fullName, string? department, int roleId, int? teamId, int modifiedById)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return false;
+
+            user.FullName = fullName;
+            user.Department = department;
+            user.RoleID = roleId;
+            user.TeamID = teamId;
+
+            await _context.SaveChangesAsync();
+
+            await CreateAuditLogAsync(
+                userId: modifiedById,
+                action: "UPDATE_USER",
+                targetType: "User",
+                targetId: userId,
+                details: $"Updated name/department/role/team"
+            );
+
+            return true;
+        }
+
         public async Task<List<Role>> GetAvailableRolesAsync()
         {
             return await _context.Roles.ToListAsync();
+        }
+
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
+        }
+
+        public async Task<List<User>> GetActiveUsersAsync()
+        {
+            return await _context.Users
+                .Where(u => u.IsActive && u.IsApproved)
+                .ToListAsync();
         }
 
         public async Task<bool> CreateAuditLogAsync(
