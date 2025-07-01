@@ -28,8 +28,6 @@ namespace OmnitakSupportHub.Models
 
         [Required]
         [Display(Name = "Department")]
-        [StringLength(50)]
-        public string Department { get; set; } = "";
+        public int DepartmentID { get; set; }
     }
 }
-
