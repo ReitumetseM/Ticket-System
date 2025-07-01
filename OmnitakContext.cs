@@ -17,10 +17,6 @@ namespace OmnitakSupportHub
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<PasswordReset> PasswordResets { get; set; }
-        public DbSet<Department> Departments { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Status> Statuses { get; set; }
-        public DbSet<Priority> Priorities { get; set; }
 
         public OmnitakContext(DbContextOptions<OmnitakContext> options) : base(options)
         {
@@ -39,10 +35,6 @@ namespace OmnitakSupportHub
             modelBuilder.Entity<Feedback>().HasKey(f => f.FeedbackID);
             modelBuilder.Entity<PasswordReset>().HasKey(pr => pr.Token);
             modelBuilder.Entity<AuditLog>().HasKey(al => al.LogID);
-            modelBuilder.Entity<Department>().HasKey(d => d.DepartmentID);
-            modelBuilder.Entity<Category>().HasKey(c => c.CategoryID);
-            modelBuilder.Entity<Status>().HasKey(s => s.StatusID);
-            modelBuilder.Entity<Priority>().HasKey(p => p.PriorityID);
 
             /// 2) Configure specific relationships BEFORE setting global delete behavior
 
@@ -60,7 +52,7 @@ namespace OmnitakSupportHub
                 .HasForeignKey(tt => tt.TicketID)
                 .OnDelete(DeleteBehavior.ClientCascade);
 
-            // 2c) User relationships
+            // 2c) Other relationships that need special handling
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)
                 .WithMany(r => r.Users)
@@ -73,20 +65,12 @@ namespace OmnitakSupportHub
                 .HasForeignKey(u => u.TeamID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Department)
-                .WithMany(d => d.Users)
-                .HasForeignKey(u => u.DepartmentID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 2d) SupportTeam relationships
             modelBuilder.Entity<SupportTeam>()
                 .HasOne(st => st.TeamLead)
                 .WithMany(u => u.LeadTeams)
                 .HasForeignKey(st => st.TeamLeadID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 2e) Ticket relationships
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.CreatedByUser)
                 .WithMany(u => u.CreatedTickets)
@@ -105,25 +89,6 @@ namespace OmnitakSupportHub
                 .HasForeignKey(t => t.TeamID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Category)
-                .WithMany(c => c.Tickets)
-                .HasForeignKey(t => t.CategoryID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Status)
-                .WithMany(s => s.Tickets)
-                .HasForeignKey(t => t.StatusID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Priority)
-                .WithMany(p => p.Tickets)
-                .HasForeignKey(t => t.PriorityID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 2f) ChatMessage relationships
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(cm => cm.Ticket)
                 .WithMany(t => t.ChatMessages)
@@ -136,7 +101,6 @@ namespace OmnitakSupportHub
                 .HasForeignKey(cm => cm.UserID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 2g) KnowledgeBase relationships
             modelBuilder.Entity<KnowledgeBase>()
                 .HasOne(kb => kb.CreatedByUser)
                 .WithMany(u => u.CreatedArticles)
@@ -149,13 +113,6 @@ namespace OmnitakSupportHub
                 .HasForeignKey(kb => kb.LastUpdatedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<KnowledgeBase>()
-                .HasOne(kb => kb.Category)
-                .WithMany(c => c.KnowledgeBaseArticles)
-                .HasForeignKey(kb => kb.CategoryID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 2h) Feedback relationships
             modelBuilder.Entity<Feedback>()
                 .HasOne(f => f.Ticket)
                 .WithMany(t => t.Feedbacks)
@@ -168,14 +125,12 @@ namespace OmnitakSupportHub
                 .HasForeignKey(f => f.UserID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 2i) AuditLog relationships
             modelBuilder.Entity<AuditLog>()
                 .HasOne(al => al.User)
                 .WithMany(u => u.AuditLogs)
                 .HasForeignKey(al => al.UserID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 2j) PasswordReset relationships
             modelBuilder.Entity<PasswordReset>()
                 .HasOne(pr => pr.User)
                 .WithMany(u => u.PasswordResets)
@@ -191,7 +146,7 @@ namespace OmnitakSupportHub
                 fk.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
-            // 4) Indexes
+            // 4) Indexes, seed & base call
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
@@ -204,60 +159,12 @@ namespace OmnitakSupportHub
                 .HasIndex(st => st.TeamName)
                 .IsUnique();
 
-            modelBuilder.Entity<Department>()
-                .HasIndex(d => d.DepartmentName)
-                .IsUnique();
-
-            modelBuilder.Entity<Category>()
-                .HasIndex(c => c.CategoryName)
-                .IsUnique();
-
-            modelBuilder.Entity<Status>()
-                .HasIndex(s => s.StatusName)
-                .IsUnique();
-
             SeedData(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
 
         private void SeedData(ModelBuilder modelBuilder)
         {
-            // Seed Departments
-            modelBuilder.Entity<Department>().HasData(
-                new Department { DepartmentID = 1, DepartmentName = "IT", Description = "Information Technology Department" },
-                new Department { DepartmentID = 2, DepartmentName = "HR", Description = "Human Resources Department" },
-                new Department { DepartmentID = 3, DepartmentName = "Finance", Description = "Finance Department" },
-                new Department { DepartmentID = 4, DepartmentName = "Marketing", Description = "Marketing Department" },
-                new Department { DepartmentID = 5, DepartmentName = "Operations", Description = "Operations Department" }
-            );
-
-            // Seed Categories
-            modelBuilder.Entity<Category>().HasData(
-                new Category { CategoryID = 1, CategoryName = "Hardware", Description = "Hardware related issues" },
-                new Category { CategoryID = 2, CategoryName = "Software", Description = "Software related issues" },
-                new Category { CategoryID = 3, CategoryName = "Network", Description = "Network connectivity issues" },
-                new Category { CategoryID = 4, CategoryName = "Security", Description = "Security related issues" },
-                new Category { CategoryID = 5, CategoryName = "Account", Description = "User account issues" },
-                new Category { CategoryID = 6, CategoryName = "General", Description = "General inquiries" }
-            );
-
-            // Seed Statuses
-            modelBuilder.Entity<Status>().HasData(
-                new Status { StatusID = 1, StatusName = "Open" },
-                new Status { StatusID = 2, StatusName = "InProgress" },
-                new Status { StatusID = 3, StatusName = "Pending" },
-                new Status { StatusID = 4, StatusName = "Resolved" },
-                new Status { StatusID = 5, StatusName = "Closed" }
-            );
-
-            // Seed Priorities
-            modelBuilder.Entity<Priority>().HasData(
-                new Priority { PriorityID = 1, Label = "Low", Weight = 1 },
-                new Priority { PriorityID = 2, Label = "Medium", Weight = 2 },
-                new Priority { PriorityID = 3, Label = "High", Weight = 3 },
-                new Priority { PriorityID = 4, Label = "Critical", Weight = 4 }
-            );
-
             // Seed Roles with enhanced permissions for approval workflow
             modelBuilder.Entity<Role>().HasData(
                 new Role
@@ -356,12 +263,12 @@ namespace OmnitakSupportHub
                     PasswordHash = adminPasswordHash,
                     HashAlgorithm = "SHA256",
                     FullName = "System Administrator",
+                    Department = "IT",
                     CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     IsApproved = true,
                     IsActive = true,
                     RoleID = 1,
                     TeamID = 1,
-                    DepartmentID = 1,
                     ApprovedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     ApprovedBy = null // Set to null to avoid self-reference during seeding
                 }
