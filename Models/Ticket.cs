@@ -11,29 +11,31 @@ namespace OmnitakSupportHub.Models
         public int TicketID { get; set; }
 
         [Required, StringLength(200)]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;       // ← never null
 
         [Required, Column(TypeName = "nvarchar(max)")]
-        public string Description { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty; // ← never null
+
+        [StringLength(20)]
+        public string Status { get; set; } = TicketStatus.Open.ToString();
+
+        public int Priority { get; set; } = (int)TicketPriority.Medium;
+
+        [StringLength(50)]
+        public string? Category { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ClosedAt { get; set; }
 
-        // Foreign Keys - Updated to use lookup tables
+        // Foreign Keys
         public int CreatedBy { get; set; }
         public int? AssignedTo { get; set; }
         public int? TeamID { get; set; }
-        public int? CategoryID { get; set; }
-        public int? StatusID { get; set; }
-        public int? PriorityID { get; set; }
 
         // Navigation Properties
-        public virtual User CreatedByUser { get; set; } = null!;
+        public virtual User CreatedByUser { get; set; } = null!;   // ← EF populates
         public virtual User? AssignedToUser { get; set; }
         public virtual SupportTeam? Team { get; set; }
-        public virtual Category? Category { get; set; }
-        public virtual Status? Status { get; set; }
-        public virtual Priority? Priority { get; set; }
 
         // Related entities
         public virtual ICollection<TicketTimeline> TicketTimelines { get; set; }
@@ -44,7 +46,6 @@ namespace OmnitakSupportHub.Models
             = new List<Feedback>();
     }
 
-    // Keep enums for backward compatibility and application logic
     public enum TicketStatus
     {
         Open = 1,

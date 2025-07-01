@@ -15,7 +15,7 @@ namespace OmnitakSupportHub.Models
 
         [Required]
         [StringLength(128)]
-        public string PasswordHash { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;    
 
         [StringLength(20)]
         public string HashAlgorithm { get; set; } = "SHA256";
@@ -23,6 +23,9 @@ namespace OmnitakSupportHub.Models
         [Required]
         [StringLength(100)]
         public string FullName { get; set; } = string.Empty;
+
+        [StringLength(50)]
+        public string? Department { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
@@ -35,12 +38,10 @@ namespace OmnitakSupportHub.Models
         // Foreign Keys
         public int? RoleID { get; set; }
         public int? TeamID { get; set; }
-        public int? DepartmentID { get; set; }
 
         // Navigation Properties
         public virtual Role? Role { get; set; }
         public virtual SupportTeam? Team { get; set; }
-        public virtual Department? Department { get; set; }
         public virtual User? ApprovedByUser { get; set; }
 
         // Tickets relationships
