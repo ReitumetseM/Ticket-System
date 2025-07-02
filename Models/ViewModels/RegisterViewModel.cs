@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using OmnitakSupportHub.Models.Validation;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace OmnitakSupportHub.Models.ViewModels
 {
@@ -9,26 +12,28 @@ namespace OmnitakSupportHub.Models.ViewModels
         [StringLength(100, ErrorMessage = "Full name must be at most 100 characters.")]
         public string FullName { get; set; } = "";
 
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Email is required")]
         [Display(Name = "Email Address")]
-        public string Email { get; set; } = "";
+        [RegularExpression(@"^[a-zA-Z][a-zA-Z0-9._%+-]*@(gmail\.com|omnitak\.com)$",
+            ErrorMessage = "Email must start with a letter and use @gmail.com or @omnitak.com")]
+        public string Email { get; set; } = string.Empty;
 
         [Required]
         [DataType(DataType.Password)]
-        [StringLength(100, MinimumLength = 6,
-            ErrorMessage = "Password must be between 6 and 100 characters.")]
+        [Display(Name = "Password")]
+        [StrongPassword] // Apply our custom attribute
         public string Password { get; set; } = "";
 
         [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Confirm Password")]
-        [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = "";
 
         [Required]
         [Display(Name = "Department")]
-        [StringLength(50)]
         public string Department { get; set; } = "";
+
+        public List<SelectListItem> AvailableDepartments { get; set; } = new();
     }
 }

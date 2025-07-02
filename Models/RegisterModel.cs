@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using OmnitakSupportHub.Models.Validation;
 
 namespace OmnitakSupportHub.Models
 {
@@ -10,14 +11,15 @@ namespace OmnitakSupportHub.Models
         public string FullName { get; set; } = "";
 
         [Required]
-        [EmailAddress]
         [Display(Name = "Email Address")]
+        [RegularExpression(@"^[a-zA-Z][a-zA-Z0-9._%+-]*@(gmail\.com|omnitak\.com)$",
+            ErrorMessage = "Email must start with a letter and use @gmail.com or @omnitak.com")]
         public string Email { get; set; } = "";
 
         [Required]
         [DataType(DataType.Password)]
-        [StringLength(100, MinimumLength = 6,
-            ErrorMessage = "Password must be between 6 and 100 characters.")]
+        [Display(Name = "Password")]
+        [StrongPassword] // Apply our custom attribute
         public string Password { get; set; } = "";
 
         [Required]
@@ -28,7 +30,6 @@ namespace OmnitakSupportHub.Models
 
         [Required]
         [Display(Name = "Department")]
-        [StringLength(50)]
         public string Department { get; set; } = "";
     }
 }

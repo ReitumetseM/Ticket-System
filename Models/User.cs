@@ -24,9 +24,6 @@ namespace OmnitakSupportHub.Models
         [StringLength(100)]
         public string FullName { get; set; } = string.Empty;
 
-        [StringLength(50)]
-        public string? Department { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Authentication flow properties
@@ -59,5 +56,9 @@ namespace OmnitakSupportHub.Models
 
         // Team lead relationships
         public virtual ICollection<SupportTeam> LeadTeams { get; set; } = new List<SupportTeam>();
+        [ForeignKey("Department")]
+        public int? DepartmentId { get; set; }  // Change from string to int?
+
+        public virtual Department? Department { get; set; }
     }
 }
