@@ -17,6 +17,7 @@ namespace OmnitakSupportHub
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<PasswordReset> PasswordResets { get; set; }
+        public DbSet<Department> Departments { get; set; }
 
         public OmnitakContext(DbContextOptions<OmnitakContext> options) : base(options)
         {
@@ -263,7 +264,7 @@ namespace OmnitakSupportHub
                     PasswordHash = adminPasswordHash,
                     HashAlgorithm = "SHA256",
                     FullName = "System Administrator",
-                    Department = "IT",
+                    DepartmentId = 1,
                     CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     IsApproved = true,
                     IsActive = true,
@@ -272,6 +273,14 @@ namespace OmnitakSupportHub
                     ApprovedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     ApprovedBy = null // Set to null to avoid self-reference during seeding
                 }
+            );
+                modelBuilder.Entity<Department>().HasData(
+                new Department { DepartmentId = 1, Name = "IT", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                new Department { DepartmentId = 2, Name = "HR", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                new Department { DepartmentId = 3, Name = "Finance", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                new Department { DepartmentId = 4, Name = "Operations", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                new Department { DepartmentId = 5, Name = "Marketing", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                new Department { DepartmentId = 6, Name = "Sales", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
             );
         }
 

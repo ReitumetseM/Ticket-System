@@ -1,21 +1,27 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.Models.ViewModels;
 using OmnitakSupportHub.Services;
-using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace OmnitakSupportHub.Controllers
 {
     public class AccountController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly OmnitakContext _context;
 
-        public AccountController(IAuthService authService)
+        public AccountController(
+            IAuthService authService,
+            OmnitakContext context) 
         {
             _authService = authService;
+            _context = context; 
         }
 
         [HttpGet]
@@ -47,7 +53,7 @@ namespace OmnitakSupportHub.Controllers
                     new Claim(ClaimTypes.NameIdentifier, result.User.UserID.ToString()),
                     new Claim(ClaimTypes.Name, result.User.FullName),
                     new Claim(ClaimTypes.Email, result.User.Email),
-                    new Claim("Department", result.User.Department ?? ""),
+                    new Claim("Department", result.User.Department?.Name ?? ""),
                     new Claim("RoleID", result.User.RoleID?.ToString() ?? ""),
                     new Claim("TeamID", result.User.TeamID?.ToString() ?? "")
                 };
@@ -105,33 +111,64 @@ namespace OmnitakSupportHub.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
-        }
+            var departments = _context.Departments.ToList();
 
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var registerModel = new RegisterModel
+            var model = new RegisterViewModel // Create ViewModel
             {
-                Email = model.Email,
-                Password = model.Password,
-                FullName = model.FullName,
-                Department = model.Department
+                AvailableDepartments = departments.Select(d => new SelectListItem
+                {
+                    Value = d.Name,
+                    Text = d.Name
+                }).ToList()
             };
 
-            var result = await _authService.RegisterAsync(registerModel);
-            if (result.Success)
-            {
-                TempData["SuccessMessage"] = result.Message;
-                return RedirectToAction("Login");
-            }
-
-            ModelState.AddModelError("", result.Message);
             return View(model);
         }
+
+[HttpPost]
+public async Task<IActionResult> Register(RegisterViewModel model) // Receive ViewModel
+{
+    if (!ModelState.IsValid)
+    {
+        // Repopulate departments on failure
+        model.AvailableDepartments = _context.Departments
+            .Select(d => new SelectListItem
+            {
+                Value = d.Name,
+                Text = d.Name
+            }).ToList();
+        return View(model);
+    }
+
+    // Convert ViewModel to Model for service
+    var registerModel = new RegisterModel
+    {
+        FullName = model.FullName,
+        Email = model.Email,
+        Password = model.Password,
+        ConfirmPassword = model.ConfirmPassword,
+        Department = model.Department
+    };
+
+    var result = await _authService.RegisterAsync(registerModel);
+    
+    if (result.Success)
+    {
+        TempData["SuccessMessage"] = result.Message;
+        return RedirectToAction("Login");
+    }
+
+    // Repopulate departments if registration fails
+    model.AvailableDepartments = _context.Departments
+        .Select(d => new SelectListItem
+        {
+            Value = d.Name,
+            Text = d.Name
+        }).ToList();
+    
+    ModelState.AddModelError("", result.Message);
+    return View(model);
+}
 
 
         [HttpPost]

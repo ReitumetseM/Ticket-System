@@ -9,8 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Register Entity Framework DbContext
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<OmnitakContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // Register Authentication Service
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -56,5 +57,19 @@ app.MapGet("/", context =>
     context.Response.Redirect("/Account/Login");
     return Task.CompletedTask;
 });
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<OmnitakContext>();
+        context.Database.EnsureCreated(); // Creates database if it doesn't exist
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while creating the database.");
+    }
+}
 
 app.Run();
