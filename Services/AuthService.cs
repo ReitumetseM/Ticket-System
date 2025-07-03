@@ -146,6 +146,7 @@ namespace OmnitakSupportHub.Services
         {
             return await _context.Users
                 .Where(u => !u.IsApproved && u.IsActive)
+                .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync();
         }
 
@@ -205,6 +206,7 @@ namespace OmnitakSupportHub.Services
         {
             return await _context.Users
                 .Where(u => u.IsActive && u.IsApproved)
+                .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync();
         }
 
