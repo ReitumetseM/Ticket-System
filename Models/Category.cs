@@ -3,26 +3,22 @@ using System.Collections.Generic;
 
 namespace OmnitakSupportHub.Models
 {
-    public class SupportTeam
+    public class Category
     {
         [Key]
-        public int TeamID { get; set; }
+        public int CategoryID { get; set; }
 
-        [Required, StringLength(100)]
-        public required string TeamName { get; set; }
+        [Required, StringLength(50)]
+        public required string CategoryName { get; set; }
 
         [StringLength(255)]
         public string? Description { get; set; }
 
-        [StringLength(100)]
-        public string? Specialization { get; set; }
-
-        public int? TeamLeadID { get; set; }
-        public virtual User? TeamLead { get; set; }
+        public bool IsActive { get; set; }
 
         // Navigation
-        public virtual ICollection<User> Users { get; set; } = new List<User>();
         public virtual ICollection<RoutingRule> RoutingRules { get; set; } = new List<RoutingRule>();
         public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+        public virtual ICollection<KnowledgeBase> KnowledgeBaseArticles { get; set; } = new List<KnowledgeBase>();
     }
 }

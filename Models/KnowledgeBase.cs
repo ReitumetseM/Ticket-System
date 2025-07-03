@@ -9,30 +9,23 @@ namespace OmnitakSupportHub.Models
         [Key]
         public int ArticleID { get; set; }
 
-        [Required]
-        [StringLength(200)]
+        [Required, StringLength(200)]
         public string Title { get; set; } = string.Empty;
 
-        [Required]
-        [Column(TypeName = "nvarchar(max)")]
+        [Required, Column(TypeName = "nvarchar(max)")]
         public string Content { get; set; } = string.Empty;
 
-        [StringLength(50)]
-        public string? Category { get; set; }
+        // === Foreign Keys ===
+        public int CategoryID { get; set; }
+        public virtual Category Category { get; set; } = null!;
 
-        public int HelpfulCount { get; set; } = 0;
-        public bool IsPublished { get; set; } = false;
-        public bool IsFeatured { get; set; } = false;
+        public int CreatedBy { get; set; }
+        public virtual User CreatedByUser { get; set; } = null!;
+
+        public int LastUpdatedBy { get; set; }
+        public virtual User LastUpdatedByUser { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-
-        // Foreign Keys
-        public int CreatedBy { get; set; }
-        public int? LastUpdatedBy { get; set; }
-
-        // Navigation Properties
-        public virtual User CreatedByUser { get; set; } = null!;
-        public virtual User? LastUpdatedByUser { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

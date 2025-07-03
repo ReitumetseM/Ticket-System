@@ -7,17 +7,21 @@ namespace OmnitakSupportHub
 {
     public class OmnitakContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Department> Departments { get; set; }
         public DbSet<SupportTeam> SupportTeams { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Status> Statuses { get; set; }
+        public DbSet<Priority> Priorities { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<RoutingRule> RoutingRules { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
-        public DbSet<TicketTimeline> TicketTimelines { get; set; }
-        public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<KnowledgeBase> KnowledgeBase { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<PasswordReset> PasswordResets { get; set; }
-        public DbSet<Department> Departments { get; set; }
+        public DbSet<TicketTimeline> TicketTimelines { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
         public OmnitakContext(DbContextOptions<OmnitakContext> options) : base(options)
         {
@@ -25,144 +29,232 @@ namespace OmnitakSupportHub
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // 1) Explicit primary keys
-            modelBuilder.Entity<User>().HasKey(u => u.UserID);
-            modelBuilder.Entity<Role>().HasKey(r => r.RoleID);
-            modelBuilder.Entity<SupportTeam>().HasKey(st => st.TeamID);
-            modelBuilder.Entity<Ticket>().HasKey(t => t.TicketID);
-            modelBuilder.Entity<TicketTimeline>().HasKey(tt => tt.TimelineID);
-            modelBuilder.Entity<ChatMessage>().HasKey(cm => cm.MessageID);
-            modelBuilder.Entity<KnowledgeBase>().HasKey(kb => kb.ArticleID);
-            modelBuilder.Entity<Feedback>().HasKey(f => f.FeedbackID);
-            modelBuilder.Entity<PasswordReset>().HasKey(pr => pr.Token);
-            modelBuilder.Entity<AuditLog>().HasKey(al => al.LogID);
+            // Best practice is to group configurations by entity for clarity.
 
-            /// 2) Configure specific relationships BEFORE setting global delete behavior
-
-            // 2a) Self-referencing User relationship (configure first)
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.ApprovedByUser)
-                .WithMany(u => u.ApprovedUsers)
-                .HasForeignKey(u => u.ApprovedBy)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            // 2b) TicketTimeline → Ticket (client‐side cascade only)
-            modelBuilder.Entity<TicketTimeline>()
-                .HasOne(tt => tt.Ticket)
-                .WithMany(t => t.TicketTimelines)
-                .HasForeignKey(tt => tt.TicketID)
-                .OnDelete(DeleteBehavior.ClientCascade);
-
-            // 2c) Other relationships that need special handling
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Role)
-                .WithMany(r => r.Users)
-                .HasForeignKey(u => u.RoleID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Team)
-                .WithMany(t => t.Users)
-                .HasForeignKey(u => u.TeamID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<SupportTeam>()
-                .HasOne(st => st.TeamLead)
-                .WithMany(u => u.LeadTeams)
-                .HasForeignKey(st => st.TeamLeadID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.CreatedByUser)
-                .WithMany(u => u.CreatedTickets)
-                .HasForeignKey(t => t.CreatedBy)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.AssignedToUser)
-                .WithMany(u => u.AssignedTickets)
-                .HasForeignKey(t => t.AssignedTo)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Team)
-                .WithMany(st => st.Tickets)
-                .HasForeignKey(t => t.TeamID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ChatMessage>()
-                .HasOne(cm => cm.Ticket)
-                .WithMany(t => t.ChatMessages)
-                .HasForeignKey(cm => cm.TicketID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ChatMessage>()
-                .HasOne(cm => cm.User)
-                .WithMany(u => u.ChatMessages)
-                .HasForeignKey(cm => cm.UserID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<KnowledgeBase>()
-                .HasOne(kb => kb.CreatedByUser)
-                .WithMany(u => u.CreatedArticles)
-                .HasForeignKey(kb => kb.CreatedBy)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<KnowledgeBase>()
-                .HasOne(kb => kb.LastUpdatedByUser)
-                .WithMany(u => u.UpdatedArticles)
-                .HasForeignKey(kb => kb.LastUpdatedBy)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.Ticket)
-                .WithMany(t => t.Feedbacks)
-                .HasForeignKey(f => f.TicketID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.User)
-                .WithMany(u => u.Feedbacks)
-                .HasForeignKey(f => f.UserID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<AuditLog>()
-                .HasOne(al => al.User)
-                .WithMany(u => u.AuditLogs)
-                .HasForeignKey(al => al.UserID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<PasswordReset>()
-                .HasOne(pr => pr.User)
-                .WithMany(u => u.PasswordResets)
-                .HasForeignKey(pr => pr.UserID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // 3) NOW set global delete behavior for any remaining relationships
-            foreach (var fk in modelBuilder.Model
-                                        .GetEntityTypes()
-                                        .SelectMany(e => e.GetForeignKeys())
-                                        .Where(fk => fk.DeleteBehavior == DeleteBehavior.Cascade))
+            //== User Configuration ==//
+            modelBuilder.Entity<User>(entity =>
             {
-                fk.DeleteBehavior = DeleteBehavior.Restrict;
+                entity.HasKey(u => u.UserID);
+                entity.HasIndex(u => u.Email).IsUnique();
+
+                // Relationship to Role
+                entity.HasOne(u => u.Role)
+                      .WithMany(r => r.Users)
+                      .HasForeignKey(u => u.RoleID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationship to SupportTeam
+                entity.HasOne(u => u.Team)
+                      .WithMany(t => t.Users)
+                      .HasForeignKey(u => u.TeamID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationship to Department (from second snippet)
+                entity.HasOne(u => u.Department)
+                      .WithMany(d => d.Users)
+                      .HasForeignKey(u => u.DepartmentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Self-referencing relationship for user approval (special case from first snippet)
+                entity.HasOne(u => u.ApprovedByUser)
+                      .WithMany(u => u.ApprovedUsers)
+                      .HasForeignKey(u => u.ApprovedBy)
+                      .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            //== Role Configuration ==//
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.HasKey(r => r.RoleID);
+                entity.HasIndex(r => r.RoleName).IsUnique();
+            });
+
+            //== Department Configuration (New from second snippet) ==//
+            modelBuilder.Entity<Department>()
+                .HasKey(d => d.DepartmentId);
+
+            //== SupportTeam Configuration ==//
+            modelBuilder.Entity<SupportTeam>(entity =>
+            {
+                entity.HasKey(st => st.TeamID);
+                entity.HasIndex(st => st.TeamName).IsUnique();
+
+                // Relationship to TeamLead (User)
+                entity.HasOne(st => st.TeamLead)
+                      .WithMany(u => u.LeadTeams)
+                      .HasForeignKey(st => st.TeamLeadID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //== Category, Status, Priority Configurations (New from second snippet) ==//
+            modelBuilder.Entity<Category>()
+                .HasKey(c => c.CategoryID);
+
+            modelBuilder.Entity<Status>()
+                .HasKey(s => s.StatusID);
+
+            modelBuilder.Entity<Priority>()
+                .HasKey(p => p.PriorityID);
+
+            //== RoutingRule Configuration (New from second snippet) ==//
+            modelBuilder.Entity<RoutingRule>(entity =>
+            {
+                entity.HasKey(r => r.RuleID);
+
+                entity.HasOne(r => r.Category)
+                      .WithMany(c => c.RoutingRules)
+                      .HasForeignKey(r => r.CategoryID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.Team)
+                      .WithMany(t => t.RoutingRules)
+                      .HasForeignKey(r => r.TeamID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //== Ticket Configuration ==//
+            modelBuilder.Entity<Ticket>(entity =>
+            {
+                entity.HasKey(t => t.TicketID);
+
+                // Relationships to Users
+                entity.HasOne(t => t.CreatedByUser)
+                      .WithMany(u => u.CreatedTickets)
+                      .HasForeignKey(t => t.CreatedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.AssignedToUser)
+                      .WithMany(u => u.AssignedTickets)
+                      .HasForeignKey(t => t.AssignedTo)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationship to SupportTeam
+                entity.HasOne(t => t.Team)
+                      .WithMany(st => st.Tickets)
+                      .HasForeignKey(t => t.TeamID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationships from second snippet
+                entity.HasOne(t => t.Category)
+                      .WithMany(c => c.Tickets)
+                      .HasForeignKey(t => t.CategoryID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.Status)
+                      .WithMany(s => s.Tickets)
+                      .HasForeignKey(t => t.StatusID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.Priority)
+                      .WithMany(p => p.Tickets)
+                      .HasForeignKey(t => t.PriorityID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //== TicketTimeline Configuration ==//
+            modelBuilder.Entity<TicketTimeline>(entity =>
+            {
+                entity.HasKey(tt => tt.TimelineID);
+
+                // Client-side cascade (special case from first snippet)
+                entity.HasOne(tt => tt.Ticket)
+                      .WithMany(t => t.TicketTimelines)
+                      .HasForeignKey(tt => tt.TicketID)
+                      .OnDelete(DeleteBehavior.ClientCascade);
+            });
+
+            //== ChatMessage Configuration ==//
+            modelBuilder.Entity<ChatMessage>(entity =>
+            {
+                entity.HasKey(cm => cm.MessageID);
+
+                entity.HasOne(cm => cm.Ticket)
+                      .WithMany(t => t.ChatMessages)
+                      .HasForeignKey(cm => cm.TicketID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(cm => cm.User)
+                      .WithMany(u => u.ChatMessages)
+                      .HasForeignKey(cm => cm.UserID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //== KnowledgeBase Configuration ==//
+            modelBuilder.Entity<KnowledgeBase>(entity =>
+            {
+                entity.HasKey(kb => kb.ArticleID);
+
+                entity.HasOne(kb => kb.CreatedByUser)
+                      .WithMany(u => u.CreatedArticles)
+                      .HasForeignKey(kb => kb.CreatedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(kb => kb.LastUpdatedByUser)
+                      .WithMany(u => u.UpdatedArticles)
+                      .HasForeignKey(kb => kb.LastUpdatedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationship from second snippet
+                entity.HasOne(kb => kb.Category)
+                      .WithMany(c => c.KnowledgeBaseArticles)
+                      .HasForeignKey(kb => kb.CategoryID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //== Feedback Configuration ==//
+            modelBuilder.Entity<Feedback>(entity =>
+            {
+                entity.HasKey(f => f.FeedbackID);
+
+                entity.HasOne(f => f.Ticket)
+                      .WithMany(t => t.Feedbacks)
+                      .HasForeignKey(f => f.TicketID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(f => f.User)
+                      .WithMany(u => u.Feedbacks)
+                      .HasForeignKey(f => f.UserID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //== PasswordReset Configuration
+            modelBuilder.Entity<PasswordReset>(entity =>
+            {
+                entity.HasKey(pr => pr.Token);
+
+                entity.HasOne(pr => pr.User)
+                      .WithMany(u => u.PasswordResets)
+                      .HasForeignKey(pr => pr.UserID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //== AuditLog Configuration
+            modelBuilder.Entity<AuditLog>(entity =>
+            {
+                entity.HasKey(al => al.LogID);
+
+                entity.HasOne(al => al.User)
+                      .WithMany(u => u.AuditLogs)
+                      .HasForeignKey(al => al.UserID)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+            //Global Delete Behavior Rule
+            // This is a safety net to prevent accidental cascade deletes.
+            // Any relationship not explicitly configured above will be set to Restrict.
+            foreach (var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                if (fk.DeleteBehavior == DeleteBehavior.Cascade)
+                {
+                    fk.DeleteBehavior = DeleteBehavior.Restrict;
+                }
             }
 
-            // 4) Indexes, seed & base call
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-
-            modelBuilder.Entity<Role>()
-                .HasIndex(r => r.RoleName)
-                .IsUnique();
-
-            modelBuilder.Entity<SupportTeam>()
-                .HasIndex(st => st.TeamName)
-                .IsUnique();
-
-            SeedData(modelBuilder);
+            //Seeding and Base Call
             base.OnModelCreating(modelBuilder);
         }
+
 
         private void SeedData(ModelBuilder modelBuilder)
         {
@@ -274,13 +366,39 @@ namespace OmnitakSupportHub
                     ApprovedBy = null // Set to null to avoid self-reference during seeding
                 }
             );
-                modelBuilder.Entity<Department>().HasData(
-                new Department { DepartmentId = 1, Name = "IT", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Department { DepartmentId = 2, Name = "HR", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Department { DepartmentId = 3, Name = "Finance", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Department { DepartmentId = 4, Name = "Operations", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Department { DepartmentId = 5, Name = "Marketing", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-                new Department { DepartmentId = 6, Name = "Sales", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+
+            // Seeded Departments
+            modelBuilder.Entity<Department>().HasData(
+            new Department { DepartmentId = 1, DepartmentName = "IT", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            new Department { DepartmentId = 2, DepartmentName = "HR", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            new Department { DepartmentId = 3, DepartmentName = "Finance", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            new Department { DepartmentId = 4, DepartmentName = "Operations", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            new Department { DepartmentId = 5, DepartmentName = "Marketing", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+            new Department { DepartmentId = 6, DepartmentName = "Sales", CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+            );
+
+            // Seed Categories
+            modelBuilder.Entity<Category>().HasData(
+                new Category { CategoryID = 1, CategoryName = "Hardware", Description = "Issues related to physical devices" },
+                new Category { CategoryID = 2, CategoryName = "Software", Description = "Issues related to software applications" },
+                new Category { CategoryID = 3, CategoryName = "Network", Description = "Issues related to network connectivity" },
+                new Category { CategoryID = 4, CategoryName = "Security", Description = "Security-related issues and incidents" }
+            );
+
+            // Seed Statuses
+            modelBuilder.Entity<Status>().HasData(
+                new Status { StatusID = 1, StatusName = "Open" },
+                new Status { StatusID = 2, StatusName = "In Progress" },
+                new Status { StatusID = 3, StatusName = "Resolved" },
+                new Status { StatusID = 4, StatusName = "Closed" }
+            );
+
+            // Seed Priorities
+            modelBuilder.Entity<Priority>().HasData(
+                new Priority { PriorityID = 1, PriorityName = "Low" },
+                new Priority { PriorityID = 2, PriorityName = "Medium" },
+                new Priority { PriorityID = 3, PriorityName = "High", },
+                new Priority { PriorityID = 4, PriorityName = "Critical" }
             );
         }
 

@@ -77,7 +77,7 @@ namespace OmnitakSupportHub.Controllers
             {
                 UserId = user.UserID,
                 FullName = user.FullName,
-                Department = user.Department,
+                Department = user.Department?.DepartmentName,
                 RoleId = user.RoleID ?? 0,
                 TeamId = user.TeamID,
                 AvailableRoles = roles
