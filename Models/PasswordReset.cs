@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace OmnitakSupportHub.Models
 {
@@ -7,13 +8,13 @@ namespace OmnitakSupportHub.Models
         [Key]
         public Guid Token { get; set; } = Guid.NewGuid();
 
-        public DateTime ExpiresAt { get; set; } = DateTime.Now.AddHours(24);
-        public bool IsUsed { get; set; } = false;
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime? UsedAt { get; set; }
+        public DateTime ExpiresAt { get; set; } = DateTime.UtcNow.AddHours(24);
 
-        [StringLength(50)]
-        public string? IPAddress { get; set; }
+        public bool IsUsed { get; set; } = false;
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime? UsedAt { get; set; }
 
         // Foreign Key
         public int UserID { get; set; }
@@ -22,7 +23,7 @@ namespace OmnitakSupportHub.Models
         public virtual User User { get; set; } = null!;
 
         // Helper properties
-        public bool IsExpired => DateTime.Now > ExpiresAt;
+        public bool IsExpired => DateTime.UtcNow > ExpiresAt;
         public bool IsValid => !IsUsed && !IsExpired;
     }
 }

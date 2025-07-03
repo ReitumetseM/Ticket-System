@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace OmnitakSupportHub.Models
 {
@@ -19,19 +20,14 @@ namespace OmnitakSupportHub.Models
         [StringLength(500)]
         public string? Details { get; set; }
 
-        [StringLength(50)]
-        public string? IPAddress { get; set; }
-
         public DateTime PerformedAt { get; set; } = DateTime.UtcNow;
 
         // Foreign Key
         public int UserID { get; set; }
-
-        // Navigation Property
         public virtual User User { get; set; } = null!;
     }
 
-    // Common audit actions
+    /// Common system audit actions for consistency.
     public static class AuditActions
     {
         public const string UserLogin = "USER_LOGIN";

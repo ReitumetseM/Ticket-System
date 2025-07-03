@@ -98,7 +98,7 @@ namespace OmnitakSupportHub.Controllers
             var pendingCount = await _context.Users.CountAsync(u => !u.IsApproved && u.IsActive);
             var totalUsers = await _context.Users.CountAsync(u => u.IsActive);
             var totalTickets = await _context.Tickets.CountAsync();
-            var openTickets = await _context.Tickets.CountAsync(t => t.Status == TicketStatus.Open.ToString());
+            var openTickets = await _context.Tickets.CountAsync(t => t.Status.StatusName == "Open");
 
 
             ViewBag.PendingUsersCount = pendingCount;

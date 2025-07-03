@@ -11,55 +11,38 @@ namespace OmnitakSupportHub.Models
         public int TicketID { get; set; }
 
         [Required, StringLength(200)]
-        public string Title { get; set; } = string.Empty;       // ← never null
+        public string Title { get; set; } = string.Empty;
 
         [Required, Column(TypeName = "nvarchar(max)")]
-        public string Description { get; set; } = string.Empty; // ← never null
+        public string Description { get; set; } = string.Empty;
 
-        [StringLength(20)]
-        public string Status { get; set; } = TicketStatus.Open.ToString();
+        // === Normalized Foreign Keys ===
+        public int StatusID { get; set; }     // FK to Status table
+        public int PriorityID { get; set; }   // FK to Priority table
+        public int CategoryID { get; set; }   // FK to Category table
 
-        public int Priority { get; set; } = (int)TicketPriority.Medium;
+        // === Navigation properties for lookups ===
+        public virtual Status Status { get; set; } = null!;
+        public virtual Priority Priority { get; set; } = null!;
+        public virtual Category Category { get; set; } = null!;
 
-        [StringLength(50)]
-        public string? Category { get; set; }
+        // === Ticket ownership ===
+        public int CreatedBy { get; set; }   // FK to User
+        public virtual User CreatedByUser { get; set; } = null!;
 
+        public int? AssignedTo { get; set; }   // FK to User
+        public virtual User? AssignedToUser { get; set; }
+
+        public int? TeamID { get; set; }       // FK to SupportTeam
+        public virtual SupportTeam? Team { get; set; }
+
+        // === Timestamps ===
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ClosedAt { get; set; }
 
-        // Foreign Keys
-        public int CreatedBy { get; set; }
-        public int? AssignedTo { get; set; }
-        public int? TeamID { get; set; }
-
-        // Navigation Properties
-        public virtual User CreatedByUser { get; set; } = null!;   // ← EF populates
-        public virtual User? AssignedToUser { get; set; }
-        public virtual SupportTeam? Team { get; set; }
-
-        // Related entities
-        public virtual ICollection<TicketTimeline> TicketTimelines { get; set; }
-            = new List<TicketTimeline>();
-        public virtual ICollection<ChatMessage> ChatMessages { get; set; }
-            = new List<ChatMessage>();
-        public virtual ICollection<Feedback> Feedbacks { get; set; }
-            = new List<Feedback>();
-    }
-
-    public enum TicketStatus
-    {
-        Open = 1,
-        InProgress,
-        Pending,
-        Resolved,
-        Closed
-    }
-
-    public enum TicketPriority
-    {
-        Low = 1,
-        Medium,
-        High,
-        Critical
+        // === Related entities ===
+        public virtual ICollection<TicketTimeline> TicketTimelines { get; set; } = new List<TicketTimeline>();
+        public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
+        public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }

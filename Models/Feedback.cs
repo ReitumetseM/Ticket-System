@@ -16,16 +16,11 @@ namespace OmnitakSupportHub.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public bool IsAnonymous { get; set; } = false;
-        public bool IsResolved { get; set; } = false;
-
         // Foreign Keys
         public int TicketID { get; set; }
-        public int UserID { get; set; }
-
-        // Navigation Properties: EF will populate these,
-        // so we tell the compiler “I promise they’ll be set”
         public virtual Ticket Ticket { get; set; } = null!;
+
+        public int UserID { get; set; }
         public virtual User User { get; set; } = null!;
     }
 }

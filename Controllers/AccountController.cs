@@ -18,10 +18,10 @@ namespace OmnitakSupportHub.Controllers
 
         public AccountController(
             IAuthService authService,
-            OmnitakContext context) 
+            OmnitakContext context)
         {
             _authService = authService;
-            _context = context; 
+            _context = context;
         }
 
         [HttpGet]
@@ -53,7 +53,7 @@ namespace OmnitakSupportHub.Controllers
                     new Claim(ClaimTypes.NameIdentifier, result.User.UserID.ToString()),
                     new Claim(ClaimTypes.Name, result.User.FullName),
                     new Claim(ClaimTypes.Email, result.User.Email),
-                    new Claim("Department", result.User.Department?.Name ?? ""),
+                    new Claim("Department", result.User.Department?.DepartmentName ?? ""),
                     new Claim("RoleID", result.User.RoleID?.ToString() ?? ""),
                     new Claim("TeamID", result.User.TeamID?.ToString() ?? "")
                 };
@@ -117,58 +117,58 @@ namespace OmnitakSupportHub.Controllers
             {
                 AvailableDepartments = departments.Select(d => new SelectListItem
                 {
-                    Value = d.Name,
-                    Text = d.Name
+                    Value = d.DepartmentName,
+                    Text = d.DepartmentName
                 }).ToList()
             };
 
             return View(model);
         }
 
-[HttpPost]
-public async Task<IActionResult> Register(RegisterViewModel model) // Receive ViewModel
-{
-    if (!ModelState.IsValid)
-    {
-        // Repopulate departments on failure
-        model.AvailableDepartments = _context.Departments
-            .Select(d => new SelectListItem
-            {
-                Value = d.Name,
-                Text = d.Name
-            }).ToList();
-        return View(model);
-    }
-
-    // Convert ViewModel to Model for service
-    var registerModel = new RegisterModel
-    {
-        FullName = model.FullName,
-        Email = model.Email,
-        Password = model.Password,
-        ConfirmPassword = model.ConfirmPassword,
-        Department = model.Department
-    };
-
-    var result = await _authService.RegisterAsync(registerModel);
-    
-    if (result.Success)
-    {
-        TempData["SuccessMessage"] = result.Message;
-        return RedirectToAction("Login");
-    }
-
-    // Repopulate departments if registration fails
-    model.AvailableDepartments = _context.Departments
-        .Select(d => new SelectListItem
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model) // Receive ViewModel
         {
-            Value = d.Name,
-            Text = d.Name
-        }).ToList();
-    
-    ModelState.AddModelError("", result.Message);
-    return View(model);
-}
+            if (!ModelState.IsValid)
+            {
+                // Repopulate departments on failure
+                model.AvailableDepartments = _context.Departments
+                    .Select(d => new SelectListItem
+                    {
+                        Value = d.DepartmentName,
+                        Text = d.DepartmentName
+                    }).ToList();
+                return View(model);
+            }
+
+            // Convert ViewModel to Model for service
+            var registerModel = new RegisterModel
+            {
+                FullName = model.FullName,
+                Email = model.Email,
+                Password = model.Password,
+                ConfirmPassword = model.ConfirmPassword,
+                Department = model.Department
+            };
+
+            var result = await _authService.RegisterAsync(registerModel);
+
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = result.Message;
+                return RedirectToAction("Login");
+            }
+
+            // Repopulate departments if registration fails
+            model.AvailableDepartments = _context.Departments
+                .Select(d => new SelectListItem
+                {
+                    Value = d.DepartmentName,
+                    Text = d.DepartmentName
+                }).ToList();
+
+            ModelState.AddModelError("", result.Message);
+            return View(model);
+        }
 
 
         [HttpPost]

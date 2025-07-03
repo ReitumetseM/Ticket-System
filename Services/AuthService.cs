@@ -36,7 +36,7 @@ namespace OmnitakSupportHub.Services
                 Email = model.Email,
                 PasswordHash = HashPassword(model.Password),
                 HashAlgorithm = "SHA256",
-                Department = model.Department,
+                Department = await _context.Departments.FirstOrDefaultAsync(d => d.DepartmentName == model.Department),
                 IsApproved = false,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
@@ -175,7 +175,18 @@ namespace OmnitakSupportHub.Services
             if (user == null) return false;
 
             user.FullName = fullName;
-            user.Department = department;
+
+            // Look up the Department entity by name, or set to null if not provided
+            if (!string.IsNullOrWhiteSpace(department))
+            {
+                user.Department = await _context.Departments
+                    .FirstOrDefaultAsync(d => d.DepartmentName == department);
+            }
+            else
+            {
+                user.Department = null;
+            }
+
             user.RoleID = roleId;
             user.TeamID = teamId;
 
@@ -191,6 +202,7 @@ namespace OmnitakSupportHub.Services
 
             return true;
         }
+
 
         public async Task<List<Role>> GetAvailableRolesAsync()
         {
@@ -225,7 +237,6 @@ namespace OmnitakSupportHub.Services
                 TargetType = targetType,
                 TargetID = targetId,
                 Details = details,
-                IPAddress = ipAddress,
                 PerformedAt = DateTime.UtcNow
             };
             _context.AuditLogs.Add(log);
