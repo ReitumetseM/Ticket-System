@@ -251,7 +251,7 @@ namespace OmnitakSupportHub
                 }
             }
 
-            //Seeding and Base Call
+            SeedData(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
 
