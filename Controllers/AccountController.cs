@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+//using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OmnitakSupportHub.Models;
 using OmnitakSupportHub.Models.ViewModels;
 using OmnitakSupportHub.Services;
@@ -15,13 +19,23 @@ namespace OmnitakSupportHub.Controllers
     {
         private readonly IAuthService _authService;
         private readonly OmnitakContext _context;
+        private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AccountController> _logger;
 
         public AccountController(
-            IAuthService authService,
-            OmnitakContext context)
+        IAuthService authService,
+        OmnitakContext context,
+        IEmailSender emailSender, // Change to interface
+        IConfiguration configuration,
+        ILogger<AccountController> logger)
+
         {
             _authService = authService;
             _context = context;
+            _emailSender = emailSender;
+            _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -155,7 +169,9 @@ namespace OmnitakSupportHub.Controllers
             if (result.Success)
             {
                 TempData["SuccessMessage"] = result.Message;
-                return RedirectToAction("Login");
+                // Send user confirmation email
+                await SendUserConfirmationEmail(model.Email);
+                return RedirectToAction("RegisterConfirmation");
             }
 
             // Repopulate departments if registration fails
@@ -165,11 +181,36 @@ namespace OmnitakSupportHub.Controllers
                     Value = d.DepartmentName,
                     Text = d.DepartmentName
                 }).ToList();
-
-            ModelState.AddModelError("", result.Message);
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", result.Message);
+            }
+           
             return View(model);
         }
+        private async Task SendUserConfirmationEmail(string email)
+        {
+            try
+            {
+                var subject = "Registration Received - Awaiting Approval";
+                var message = $@"
+                <h3>Thank you for registering with Omnitak Support Hub!</h3>
+                <p>Your account is pending approval by an administrator.</p>
+                <p>You'll receive another email once your account has been activated.</p>
+                <p>Best regards,<br>Omnitak Support Team</p>";
 
+                await _emailSender.SendEmailAsync(email, subject, message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send confirmation email to user");
+            }
+        }
+        [HttpGet]
+        public IActionResult RegisterConfirmation()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Logout()

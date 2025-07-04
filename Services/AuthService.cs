@@ -13,10 +13,14 @@ namespace OmnitakSupportHub.Services
     {
         private readonly OmnitakContext _context;
         private const string SALT = "OmnitakSalt2024";
+        private readonly IEmailSender _emailSender; // Add email service
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthService(OmnitakContext context)
+        public AuthService(OmnitakContext context, IEmailSender emailSender, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _emailSender = emailSender;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<AuthResult> RegisterAsync(RegisterModel model)
@@ -111,6 +115,8 @@ namespace OmnitakSupportHub.Services
             user.RoleID = roleId;
 
             await _context.SaveChangesAsync();
+            // Send approval email to user
+            await SendApprovalEmail(user);
 
             await CreateAuditLogAsync(
                 userId: approvedById,
@@ -122,7 +128,35 @@ namespace OmnitakSupportHub.Services
 
             return true;
         }
+        private async Task SendApprovalEmail(User user)
+        {
+            try
+            {
+                // Generate login URL
+                var request = _httpContextAccessor.HttpContext?.Request;
+                var baseUrl = $"{request?.Scheme}://{request?.Host}";
+                var loginUrl = $"{baseUrl}/Account/Login";
 
+                var subject = "Your Account Has Been Approved!";
+                var message = $@"
+                <h3>Welcome to Omnitak Support Hub, {user.FullName}!</h3>
+                <p>Your account has been approved by an administrator.</p>
+                <p>You can now log in to the system using your credentials:</p>
+                <p><a href='{loginUrl}'>Login to Omnitak Support Hub</a></p>
+                <p>Best regards,<br>Omnitak Support Team</p>";
+
+                await _emailSender.SendEmailAsync(user.Email, subject, message);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't block approval
+                await CreateAuditLogAsync(
+                    userId: user.UserID,
+                    action: "EMAIL_ERROR",
+                    details: $"Approval email failed: {ex.Message}"
+                );
+            }
+        }
         public async Task<bool> RejectUserAsync(int userId)
         {
             var user = await _context.Users.FindAsync(userId);

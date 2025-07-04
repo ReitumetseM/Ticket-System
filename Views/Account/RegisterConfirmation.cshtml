@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Registration Confirmation";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">@ViewData["Title"]</h2>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Thank you for registering!</strong>
+            </div>
+            <p>
+                Your account is pending approval by an administrator.
+                You will receive an email notification once your account has been activated.
+            </p>
+            <p>
+                If you have any urgent requests, please contact support at
+                <a href="mailto:support@omnitak.com">support@omnitak.com</a>.
+            </p>
+        </div>
+        <div class="card-footer text-muted">
+            <a asp-action="Login" asp-controller="Account" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Login
+            </a>
+        </div>
+    </div>
+</div>
