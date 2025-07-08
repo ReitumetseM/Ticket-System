@@ -155,6 +155,9 @@ namespace OmnitakSupportHub.Controllers
             if (result.Success)
             {
                 TempData["SuccessMessage"] = result.Message;
+                var emailService = new EmailService();
+                emailService.SendRegistrationEmail(model.Email, model.FullName);
+
                 return RedirectToAction("Login");
             }
 
