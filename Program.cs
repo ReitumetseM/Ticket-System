@@ -2,11 +2,23 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using OmnitakSupportHub;
 using OmnitakSupportHub.Services;
+using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddControllers(); 
+
+
+// Register Swagger for API documentation
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Ticket API", Version = "v1" });
+});
+
 
 // Register Entity Framework DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -28,6 +40,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ticket API v1");
+    });
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -43,7 +63,7 @@ app.UseRouting();
 // Add Authentication & Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.MapControllers();
 app.MapStaticAssets();
 
 app.MapControllerRoute(
