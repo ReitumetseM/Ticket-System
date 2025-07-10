@@ -15,13 +15,16 @@ namespace OmnitakSupportHub.Controllers
     {
         private readonly IAuthService _authService;
         private readonly OmnitakContext _context;
+        private readonly EmailService _emailService;
 
         public AccountController(
             IAuthService authService,
-            OmnitakContext context)
+            OmnitakContext context,
+            EmailService emailService)
         {
             _authService = authService;
             _context = context;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -172,7 +175,109 @@ namespace OmnitakSupportHub.Controllers
             ModelState.AddModelError("", result.Message);
             return View(model);
         }
+        // Forgot Password GET
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
 
+        // Forgot Password POST
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if user exists (replace with your user lookup logic)
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+
+                if (user != null)
+                {
+                    // Generate unique token
+                    var token = Guid.NewGuid().ToString();
+
+                    // Store token in database
+                    var resetToken = new PasswordResetToken
+                    {
+                        Email = model.Email,
+                        Token = token
+                    };
+
+                    _context.PasswordResetTokens.Add(resetToken);
+                    await _context.SaveChangesAsync();
+
+                    // Generate reset link
+                    var resetLink = Url.Action("ResetPassword", "Account",
+                        new { email = model.Email, token = token },
+                        protocol: HttpContext.Request.Scheme);
+
+                    // Send email
+                    _emailService.SendPasswordResetEmail(model.Email, user.FullName, resetLink);
+                }
+
+                // Always show confirmation (security best practice)
+                return View("ForgotPasswordConfirmation");
+            }
+            return View(model);
+        }
+
+        // Reset Password GET
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string email, string token)
+        {
+            var resetToken = await _context.PasswordResetTokens
+                .FirstOrDefaultAsync(t =>
+                    t.Email == email &&
+                    t.Token == token &&
+                    !t.IsUsed &&
+                    t.Expiration > DateTime.UtcNow);
+
+            if (resetToken == null)
+            {
+                return View("ResetPasswordError");
+            }
+
+            return View(new ResetPasswordModel { Email = email, Token = token });
+        }
+
+        // Reset Password POST
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var resetToken = await _context.PasswordResetTokens
+                .FirstOrDefaultAsync(t =>
+                    t.Email == model.Email &&
+                    t.Token == model.Token &&
+                    !t.IsUsed &&
+                    t.Expiration > DateTime.UtcNow);
+
+            if (resetToken == null)
+            {
+                ModelState.AddModelError("", "Invalid or expired token");
+                return View(model);
+            }
+
+            // Update user password (replace with your password update logic)
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (user != null)
+            {
+                user.PasswordHash = HashPassword(model.NewPassword); // Implement your hashing
+                resetToken.IsUsed = true;
+                await _context.SaveChangesAsync();
+                return View("ResetPasswordConfirmation");
+            }
+
+            ModelState.AddModelError("", "User not found");
+            return View(model);
+        }
+
+        private string HashPassword(string newPassword)
+        {
+            throw new NotImplementedException();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Logout()
