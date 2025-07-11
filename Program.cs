@@ -2,11 +2,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using OmnitakSupportHub;
 using OmnitakSupportHub.Services;
+using Microsoft.OpenApi.Models; 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
+
+
+
+// Register Swagger/OpenAPI
+  builder.Services.AddEndpointsApiExplorer();
+  builder.Services.AddSwaggerGen(options=>
+  {
+      options.SwaggerDoc("v1", new OpenApiInfo
+      {
+          Title = "Omnitak Support Hub API",
+          Version = "v1",
+          Description = "API for Omnitak Support Hub"
+      });
+  });
 
 // Register Entity Framework DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -27,11 +43,22 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
     });
+    
 
 var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    // Enable Swagger in development mode
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Omnitak Support Hub API V1");
+       
+    });
+}
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+    // Configure the HTTP request pipeline.
+    if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -44,6 +71,7 @@ app.UseRouting();
 // Add Authentication & Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 
 app.MapStaticAssets();
 
